@@ -7,7 +7,7 @@ const Post = sequelize.define("image", {
         primaryKey: true,
         autoIncrement: true,
         reference:{
-            model: 'posts',
+            model: 'post',
             key: 'id'
         },
     },
