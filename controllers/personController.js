@@ -1,93 +1,120 @@
 import {
-        createPerson, 
-        getPersonById,
-        listPersonsByUser,
-        updatePerson,
-        deletePerson
-        } from "../services/personService.js";   
-        
-import 'express-async-errors';
+    createPerson,
+    deletePerson,
+    getPersonById,
+    listPersons,
+    listPersonsByUser,
+    updatePerson,
+} from "../services/personService.js";
+
+const serializePerson = (person) => {
+    if (!person) return null;
+
+    const birthday = person.birthday ?? null;
+
+    return {
+        ...person,
+        personId: person.id,
+        birthYear: birthday,
+        birthday,
+    };
+};
 
 export const createPersonHandler = async (req, res, next) => {
     try {
-        const body = req.body;
-        const created = await createPerson(body);
+        const created = await createPerson(req.body);
 
         return res.status(201).json({
             success: true,
             message: "Person created successfully",
-            data: created,
+            data: serializePerson(created),
         });
-    } catch (err) {
-    next(err);
+    } catch (error) {
+        next(error);
     }
+};
 
+export const listPersonsHandler = async (_req, res, next) => {
+    try {
+        const persons = await listPersons();
+        return res.status(200).json({
+            success: true,
+            data: persons.map(serializePerson),
+        });
+    } catch (error) {
+        next(error);
+    }
 };
 
 export const getPersonByIdHandler = async (req, res, next) => {
     try {
-        const id = Number(req.params.id);
-        const person = await getPersonById(id);
+        const id = parseInt(req.params.id, 10);
+        if (!id) {
+            return res.status(400).json({ success: false, message: "Invalid person id" });
+        }
 
+        const person = await getPersonById(id);
         if (!person) {
-            return res.status(404).json({
-                success: false,
-                message: "Person not found",
-            });
-    }
+            return res.status(404).json({ success: false, message: "Person not found" });
+        }
 
         return res.status(200).json({
             success: true,
-            message: "Person retrieved successfully",
-            data: person,
+            data: serializePerson(person),
         });
-    } catch (err) {
-    next(err);
+    } catch (error) {
+        next(error);
     }
 };
 
 export const listPersonsByUserHandler = async (req, res, next) => {
     try {
-        const userId = Number(req.params.userId);
-        const persons = await listPersonsByUser(userId);
+        const userId = parseInt(req.params.userId, 10);
+        if (!userId) {
+            return res.status(400).json({ success: false, message: "Invalid user id" });
+        }
 
+        const persons = await listPersonsByUser(userId);
         return res.status(200).json({
             success: true,
-            message: "Persons retrieved successfully",
-            data: persons,
+            data: persons.map(serializePerson),
         });
-    } catch (err) {
-    next(err);
+    } catch (error) {
+        next(error);
     }
 };
 
 export const updatePersonHandler = async (req, res, next) => {
     try {
-        const id = Number(req.params.id);
-        const body = req.body;
-        const updated = await updatePerson(id, body);
+        const id = parseInt(req.params.id, 10);
+        if (!id) {
+            return res.status(400).json({ success: false, message: "Invalid person id" });
+        }
 
+        const updated = await updatePerson(id, req.body);
         return res.status(200).json({
             success: true,
             message: "Person updated successfully",
-            data: updated,
+            data: serializePerson(updated),
         });
-    } catch (err) {
-    next(err);
+    } catch (error) {
+        next(error);
     }
 };
 
 export const deletePersonHandler = async (req, res, next) => {
     try {
-        const id = Number(req.params.id);
-        const deleted = await deletePerson(id);
+        const id = parseInt(req.params.id, 10);
+        if (!id) {
+            return res.status(400).json({ success: false, message: "Invalid person id" });
+        }
 
+        await deletePerson(id);
         return res.status(200).json({
             success: true,
             message: "Person deleted successfully",
-            data: deleted,
         });
-    } catch (err) {
-        next(err);
+    } catch (error) {
+        next(error);
     }
 };

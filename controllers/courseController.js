@@ -9,8 +9,8 @@ import 'express-async-errors';
 
 export const createCourseHandler = async (req, res, next) => {
     try {
-        const { title, description, duration, companyId } = req.body;
-        const created = await createCourse({ title, description, duration, companyId });
+        const { title, description, duration, companyId, theme } = req.body;
+        const created = await createCourse({ title, description, duration, companyId, theme });
 
         return res.status(201).json({
             success: true,

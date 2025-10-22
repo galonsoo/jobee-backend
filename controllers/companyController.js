@@ -1,111 +1,118 @@
 import {
-        createCompany,
-        getCompanyById,
-        listCompaniesByUser,
-        listAllCompanies,
-        updateCompany,
-        deleteCompany}from "../services/companyService.js";
-import 'express-async-errors';
+    createCompany,
+    deleteCompany,
+    getCompanyById,
+    listAllCompanies,
+    listCompaniesByUser,
+    updateCompany,
+} from "../services/companyService.js";
 
-// POST /api/v1/companies - create a new company
+const serializeCompany = (company) => {
+    if (!company) {
+        return null;
+    }
+
+    return {
+        ...company,
+        companyId: company.id,
+    };
+};
+
 export const createCompanyHandler = async (req, res, next) => {
     try {
-        const body = req.body;
-        const created = await createCompany(body);
+        const created = await createCompany(req.body);
 
         return res.status(201).json({
             success: true,
             message: "Company created successfully",
-            data: created,
+            data: serializeCompany(created),
         });
-    } catch (err) {
-        next(err);
+    } catch (error) {
+        next(error);
     }
 };
 
-// GET /api/v1/companies/:id - get a company by ID
 export const getCompanyHandler = async (req, res, next) => {
     try {
-        const id = Number(req.params.id);
-        const company = await getCompanyById(id);
+        const id = parseInt(req.params.id, 10);
+        if (!id) {
+            return res.status(400).json({ success: false, message: "Invalid company id" });
+        }
 
+        const company = await getCompanyById(id);
         if (!company) {
-            return res.status(404).json({
-                success: false,
-                message: "Company not found",
-            });
+            return res.status(404).json({ success: false, message: "Company not found" });
         }
 
         return res.status(200).json({
             success: true,
-            message: "Company retrieved successfully",
-            data: company,
+            data: serializeCompany(company),
         });
-    } catch (err) {
-        next(err);
+    } catch (error) {
+        next(error);
     }
 };
 
-// GET /api/v1/companies/user/:userId - list companies by user
 export const listCompaniesByUserHandler = async (req, res, next) => {
     try {
-        const userId = Number(req.params.userId);
-        const companies = await listCompaniesByUser(userId);
+        const userId = parseInt(req.params.userId, 10);
+        if (!userId) {
+            return res.status(400).json({ success: false, message: "Invalid user id" });
+        }
 
+        const companies = await listCompaniesByUser(userId);
         return res.status(200).json({
             success: true,
-            message: "Companies retrieved successfully",
-            data: companies,
+            data: companies.map(serializeCompany),
         });
-    } catch (err) {
-        next(err);
+    } catch (error) {
+        next(error);
     }
 };
 
-// GET /api/v1/companies - list all companies
-export const listAllCompaniesHandler = async (req, res, next) => {
+export const listAllCompaniesHandler = async (_req, res, next) => {
     try {
         const companies = await listAllCompanies();
-
         return res.status(200).json({
             success: true,
-            message: "Companies retrieved successfully",
-            data: companies,
+            data: companies.map(serializeCompany),
         });
-    } catch (err) {
-        next(err);
+    } catch (error) {
+        next(error);
     }
 };
 
-// PUT/PATCH /api/v1/companies/:id - update a company
 export const updateCompanyHandler = async (req, res, next) => {
     try {
-        const id = Number(req.params.id);
-        const body = req.body;
-        const updated = await updateCompany(id, body);
+        const id = parseInt(req.params.id, 10);
+        if (!id) {
+            return res.status(400).json({ success: false, message: "Invalid company id" });
+        }
 
+        const updated = await updateCompany(id, req.body);
         return res.status(200).json({
             success: true,
             message: "Company updated successfully",
-            data: updated,
+            data: serializeCompany(updated),
         });
-    } catch (err) {
-        next(err);
-    } 
+    } catch (error) {
+        next(error);
+    }
 };
 
-// DELETE /api/v1/companies/:id - delete a company
 export const deleteCompanyHandler = async (req, res, next) => {
     try {
-        const id = Number(req.params.id);
-        const deleted = await deleteCompany(id);
+        const id = parseInt(req.params.id, 10);
+        if (!id) {
+            return res.status(400).json({ success: false, message: "Invalid company id" });
+        }
 
+        await deleteCompany(id);
         return res.status(200).json({
             success: true,
             message: "Company deleted successfully",
-            data: deleted,
         });
-    } catch (err) {
-        next(err);
+    } catch (error) {
+        next(error);
     }
 };
