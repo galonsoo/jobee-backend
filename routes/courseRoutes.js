@@ -1,10 +1,10 @@
 import { Router } from "express";
 import {
-    createCourseHandler,
-    getCourseHandler,
-    getAllCoursesHandler,
-    updateCourseHandler,
-    deleteCourseHandler,
+  createCourseHandler,
+  getCourseHandler,
+  getAllCoursesHandler,
+  updateCourseHandler,
+  deleteCourseHandler,
 } from "../controllers/courseController.js";
 
 const router = Router();

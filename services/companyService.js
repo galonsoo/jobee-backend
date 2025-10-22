@@ -1,16 +1,19 @@
 import prisma from "../config/db.js";
-import 'express-async-errors';
-
 
 export const createCompany = async (company) => {
-return prisma.company.create({
-    data: {
-            rut: company.rut,
-            name: company.name,
-            legalReason: company.legalReason,
-            groupName: company.groupName,
-            subGroupName: company.subGroupName,
-            userId: company.userId, // relation by userId
+    const userId = parseInt(company.userId, 10);
+    if (!userId) {
+        throw new Error("userId es obligatorio");
+    }
+
+    return prisma.company.create({
+        data: {
+            rut: company.rut || "",
+            name: company.name || "",
+            legalReason: company.legalReason || "",
+            groupName: company.groupName || "",
+            subGroupName: company.subGroupName || "",
+            userId,
         },
     });
 };
@@ -28,7 +31,22 @@ export const listAllCompanies = async () => {
 };
 
 export const updateCompany = async (id, data) => {
-    return prisma.company.update({ where: { id }, data });
+    const payload = {};
+
+    if (data.rut !== undefined) payload.rut = data.rut || "";
+    if (data.name !== undefined) payload.name = data.name || "";
+    if (data.legalReason !== undefined) payload.legalReason = data.legalReason || "";
+    if (data.groupName !== undefined) payload.groupName = data.groupName || "";
+    if (data.subGroupName !== undefined) payload.subGroupName = data.subGroupName || "";
+    if (data.userId !== undefined) {
+        const parsedUserId = parseInt(data.userId, 10);
+        if (!parsedUserId) {
+            throw new Error("userId es obligatorio");
+        }
+        payload.userId = parsedUserId;
+    }
+
+    return prisma.company.update({ where: { id }, data: payload });
 };
 
 export const deleteCompany = async (id) => {
