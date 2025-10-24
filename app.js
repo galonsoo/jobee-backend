@@ -22,7 +22,10 @@ const PORT = process.env.PORT || 3000;
 
 // Configurar CORS para permitir el frontend
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin:[ 
+    'http://localhost:5173',
+    'http://jobee.anima.edu.uy'
+  ],
   credentials: true
 }));
 
